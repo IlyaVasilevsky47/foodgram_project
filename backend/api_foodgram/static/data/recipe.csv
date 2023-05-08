@@ -1,0 +1,4 @@
+tags,author,ingredients,name,image,text,cooking_time,pub_date
+1,4,2,test-name-3,static/data/images/img-3.jpg,test-3,3,2023-05-08 19:27:06
+3,3,3,test-name-2,static/data/images/img-2.jpg,test-2,2,2023-05-08 19:26:26
+"1,2",2,"1,2",test-name-1,static/data/images/img-1.jpg,Описание-1,1,2023-05-08 19:07:22

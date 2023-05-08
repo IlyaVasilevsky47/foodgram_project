@@ -1,0 +1,4 @@
+password,last_login,is_superuser,groups,user_permissions,is_staff,is_active,date_joined,email,username,first_name,last_name
+new-polizovatel-1,,0,,,0,1,2023-05-08 18:59:07,polizovatel-1@yandex.ru,polizovatel-1,имя-1,фамилия-1
+new-polizovatel-2,,0,,,0,1,2023-05-08 19:01:52,polizovatel-2@yandex.ru,polizovatel-2,имя-2,фамилия-2
+new-polizovatel-3,,0,,,0,1,2023-05-08 19:02:52,polizovatel-3@yandex.ru,polizovatel-3,имя-3,фамилия-3
