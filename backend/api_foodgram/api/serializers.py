@@ -4,17 +4,10 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
-from recipes.models import (
-    Cart,
-    Favorite,
-    Ingredient,
-    Recipe,
-    RecipeIngredient,
-    RecipeTag,
-    Subscription,
-    Tag,
-)
+from recipes.models import (Cart, Favorite, Ingredient, Recipe,
+                            RecipeIngredient, RecipeTag, Subscription, Tag)
 from users.models import CustomUser
 
 User = get_user_model()
@@ -42,7 +35,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return is_subscribed.exists()
 
 
-class CcreateCustomUserSerializer(serializers.ModelSerializer):
+class CreateCustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('email', 'username', 'first_name', 'last_name', 'password')
@@ -54,11 +47,6 @@ class CcreateCustomUserSerializer(serializers.ModelSerializer):
         }
         serializers = CustomUserSerializer(instance, context=context)
         return serializers.data
-
-
-class CustomUserSetPasswordSerializer(serializers.Serializer):
-    current_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -144,10 +132,14 @@ class GetRecipeSerializer(serializers.ModelSerializer):
 
 class CreateRecipeSerializer(serializers.ModelSerializer):
     ingredients = CreateRecipeIngredientSerializer(many=True)
-    tags = serializers.PrimaryKeyRelatedField(many=True,
-                                              queryset=Tag.objects.all())
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.all()
+    )
     image = Base64ImageField()
-    name = serializers.CharField(max_length=200)
+    name = serializers.CharField(
+        max_length=200,
+        validators=[UniqueValidator(queryset=Recipe.objects.all())]
+    )
 
     class Meta:
         model = Recipe
@@ -259,12 +251,19 @@ class UniversalRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
-    email = serializers.SerializerMethodField()
-    id = serializers.SerializerMethodField()
-    username = serializers.SerializerMethodField()
-    first_name = serializers.SerializerMethodField()
-    last_name = serializers.SerializerMethodField()
-
+    email = serializers.CharField(
+        source='authors.email'
+    )
+    id = serializers.IntegerField(source='authors.id')
+    username = serializers.CharField(
+        source='authors.username'
+    )
+    first_name = serializers.CharField(
+        source='authors.first_name'
+    )
+    last_name = serializers.CharField(
+        source='authors.last_name'
+    )
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
@@ -281,21 +280,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'recipes',
             'recipes_count',
         )
-
-    def get_email(self, obj):
-        return obj.authors.email
-
-    def get_id(self, obj):
-        return obj.authors.id
-
-    def get_username(self, obj):
-        return obj.authors.username
-
-    def get_first_name(self, obj):
-        return obj.authors.first_name
-
-    def get_last_name(self, obj):
-        return obj.authors.last_name
 
     def get_is_subscribed(self, obj):
         subscription = Subscription.objects.filter(users=obj.users,

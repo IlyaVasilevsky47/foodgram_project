@@ -7,12 +7,7 @@ SECRET_KEY = "n+bk)jm(e7e$82w1dquh226w*0ksj(an)%$i)=n)z)aho75!9d"
 
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "[::1],",
-    "testserver",
-]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -33,6 +28,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "django_filters",
     "djoser",
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -43,6 +39,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = "api_foodgram.urls"
@@ -70,18 +68,25 @@ WSGI_APPLICATION = "api_foodgram.wsgi.application"
 # Database: нужно будет заменить на PostgreSQL
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-
+'''
 DATABASES = {
-    "default": {
-        "ENGINE": os.getenv("DB_ENGINE"),
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT"),
+    'default': {
+        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
+        'NAME': os.getenv('DB_NAME', default='postgres'),
+        'USER': os.getenv('POSTGRES_USER', default='postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
+        'HOST': os.getenv('DB_HOST', default='db'),
+        'PORT': os.getenv('DB_PORT', default='5432')
     }
 }
+'''
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # Password validation
 
@@ -119,6 +124,14 @@ USE_L10N = True
 USE_TZ = True
 
 
+# Corsheaders
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
+CORS_URLS_REGEX = r'^/api/.*$'
+
+
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = "/static/"
@@ -129,7 +142,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
 # Djozer
-
 DJOSER = {
     "LOGIN_FIELD": "email",
     "SERIALIZERS": {},
