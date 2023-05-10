@@ -1,6 +1,11 @@
 from django_filters import rest_framework
+from rest_framework import filters
 
-from recipes.models import Cart, Favorite, Recipe
+from recipes.models import Cart, Favorite, Recipe, Tag
+
+
+class IngredientSearchFilter(filters.SearchFilter):
+    search_param = 'name'
 
 
 class RecipeFilter(rest_framework.FilterSet):
@@ -11,6 +16,12 @@ class RecipeFilter(rest_framework.FilterSet):
         field_name='shopping_cart',
         method='filter_shopping_cart',
         label='Корзина'
+    )
+    tags = rest_framework.ModelMultipleChoiceFilter(
+        field_name='tags__slug',
+        to_field_name='slug',
+        queryset=Tag.objects.all(),
+        label='Теги',
     )
 
     def filter_favorited(self, queryset, name, value):

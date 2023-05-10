@@ -134,8 +134,10 @@ dmypy.json
 # .vscode/
 .vscode/
 
+# frontend
+node_modules/
+
 # api_foodgram
-media/
 admin/
 colorfield/
 import_export/

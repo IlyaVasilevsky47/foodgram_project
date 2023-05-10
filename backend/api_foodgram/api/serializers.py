@@ -162,13 +162,14 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         for tags in tags_data:
             RecipeTag.objects.create(recipes=recipe, tags=tags)
 
+        ingredients_list = []
         for ingredients in ingredients_data:
-            items = list(ingredients.items())
-            ingredient = items[0][1]
-            amount = items[1][1]
-            RecipeIngredient.objects.create(
-                recipes=recipe, ingredients=ingredient, amount=amount
-            )
+            ingredients_list.append(RecipeIngredient(
+                recipes=recipe,
+                ingredients=ingredients['id'],
+                amount=ingredients['amount']
+            ))
+        RecipeIngredient.objects.bulk_create(ingredients_list)
 
         return recipe
 
@@ -176,8 +177,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         ingredients_data = data['ingredients']
         old_ingredient = None
         for ingredients in ingredients_data:
-            items = list(ingredients.items())
-            new_ingredient = items[0][1]
+            new_ingredient = ingredients['id']
             if new_ingredient == old_ingredient:
                 raise serializers.ValidationError(
                     {'ingredients': {'id': 'Повторяется ингредиент'}}
@@ -195,31 +195,24 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         return data
 
     def update(self, instance, validated_data):
-        instance.image = validated_data.get('image', instance.image)
-        instance.name = validated_data.get('name', instance.name)
-        instance.text = validated_data.get('text', instance.text)
-        instance.cooking_time = validated_data.get(
-            'cooking_time', instance.cooking_time
-        )
         if 'ingredients' in validated_data:
             ingredients_data = validated_data.pop('ingredients')
             data = []
-            for ingredients in ingredients_data:
-                items = list(ingredients.items())
-                ingredient = items[0][1]
-                amount = items[1][1]
-                ingredient_data = RecipeIngredient.objects.filter(
-                    recipes=instance,
-                    ingredients=ingredient,
-                )
-                if ingredient_data.exists():
-                    ingredient_data.update(amount=amount)
-                else:
-                    ingredient_data.create(
-                        recipes=instance, ingredients=ingredient, amount=amount
-                    )
 
-                data.append(ingredient)
+            for ingredient in ingredients_data:
+                ingr = RecipeIngredient.objects.filter(
+                    recipes=instance,
+                    ingredients=ingredient['id'],
+                )
+                if ingr.exists():
+                    ingr.update(amount=ingredient['amount'])
+                else:
+                    ingr.create(
+                        recipes=instance,
+                        ingredients=ingredient['id'],
+                        amount=ingredient['amount']
+                    )
+                data.append(ingredient['id'])
             instance.ingredients.set(data)
 
         if 'tags' in validated_data:
@@ -229,9 +222,8 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                 RecipeTag.objects.get_or_create(recipes=instance, tags=tag)
                 data.append(tag.id)
             instance.tags.set(data)
-
         instance.save()
-        return instance
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         request = self.context.get('request')
@@ -292,7 +284,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         recipes_data = []
         for recipe in recipes:
             image = request.build_absolute_uri(recipe.image.url)
-            print(image)
             recipes_data.append(
                 {
                     'id': recipe.id,

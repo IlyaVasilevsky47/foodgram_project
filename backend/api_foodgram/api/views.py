@@ -12,7 +12,7 @@ from recipes.models import (Cart, Favorite, Ingredient, Recipe,
                             RecipeIngredient, Subscription, Tag)
 from users.models import CustomUser
 
-from .filters import RecipeFilter
+from .filters import IngredientSearchFilter, RecipeFilter
 from .serializers import (CreateCustomUserSerializer, CreateRecipeSerializer,
                           CustomUserSerializer, GetRecipeSerializer,
                           IngredientSerializer, SubscriptionSerializer,
@@ -130,8 +130,9 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (DjangoFilterBackend,)
     pagination_class = None
+    filter_backends = (IngredientSearchFilter,)
+    search_fields = ['name']
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
