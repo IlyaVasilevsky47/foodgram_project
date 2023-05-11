@@ -1,13 +1,13 @@
-version: '3.8'
+version: '3.3' 
 services:
   db:
     image: postgres:13.0-alpine
     volumes:
-      - database:/var/lib/postgresql/data/
+      - /var/lib/postgresql/data/
     env_file:
       - .env
 
-  backend:
+  web:
     build: ../backend/api_foodgram/
     restart: always
     volumes:
@@ -17,35 +17,29 @@ services:
       - db
     env_file:
       - .env
+ 
+  frontend: 
+    build: 
+      context: ../frontend 
+      dockerfile: Dockerfile 
+    volumes: 
+      - ../frontend/:/app/result_build/ 
 
-  # frontend:
-  #   build:
-  #     context: ../frontend
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ../frontend/:/app/result_build/
-  # nginx:
-  #   image: nginx:1.19.3
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf
-  #     - ../frontend/build:/usr/share/nginx/html/
-  #     - ../docs/:/usr/share/nginx/html/api/docs/
-
-  nginx:
-    image: nginx:1.21.3-alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/backend_nginx.conf:/etc/nginx/conf.d/backend_nginx.conf
+  nginx: 
+    image: nginx:1.19.3 
+    ports: 
+      - "80:80" 
+    volumes: 
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf 
+      - ../frontend/build:/usr/share/nginx/html/ 
+      - ../docs/:/usr/share/nginx/html/api/docs/
       - static_value:/var/html/static/
       - media_value:/var/html/media/
-    depends_on:
-      - backend
+
+    links:
+      - web
+    
 
 volumes:
-  database:
   static_value:
   media_value:
-  

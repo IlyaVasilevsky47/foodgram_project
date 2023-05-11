@@ -67,10 +67,11 @@ TEMPLATES = [
 WSGI_APPLICATION = "api_foodgram.wsgi.application"
 
 
-# Database: нужно будет заменить на PostgreSQL
+# Database
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
+'''
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
@@ -81,6 +82,14 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT', default='5432')
     }
 }
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': str(BASE_DIR / 'db.sqlite3'),
+    }
+}
+
 
 
 # Password validation

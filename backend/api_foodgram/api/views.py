@@ -1,5 +1,6 @@
 from io import StringIO
 
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -8,8 +9,8 @@ from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 
-from recipes.models import (Cart, Favorite, Ingredient, Recipe,
-                            RecipeIngredient, Subscription, Tag)
+from recipes.models import (Cart, Favorite, Ingredient, Recipe, Subscription,
+                            Tag)
 from users.models import CustomUser
 
 from .filters import IngredientSearchFilter, RecipeFilter
@@ -86,11 +87,10 @@ class CustomUserViewSet(CreateListRetrieveViewSet):
             )
         subscribe.create(users=user, authors=author)
         new_subs = subscribe.get(users=user, authors=author)
-        serializer = SubscriptionSerializer(new_subs,
-                                            context={'request': request})
-        return Response(
-            data=serializer.data, status=status.HTTP_201_CREATED
+        serializer = SubscriptionSerializer(
+            new_subs, context={'request': request}
         )
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
     def subscribe_delete(self, request, *args, **kwargs):
@@ -146,14 +146,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return GetRecipeSerializer
         return CreateRecipeSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        user = self.request.user
-        author = instance.author
-        if user == author:
+        if self.request.userr == instance.author:
             return self.update(request, *args, **kwargs)
         detail = 'У вас недостаточно прав для выполнения данного действия.'
         return Response(
@@ -162,9 +157,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        user = self.request.user
-        author = instance.author
-        if user == author:
+        if self.request.user == instance.author:
             self.perform_destroy(instance)
             return Response(status=status.HTTP_204_NO_CONTENT)
         detail = 'У вас недостаточно прав для выполнения данного действия.'
@@ -178,18 +171,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated],
     )
     def download_shopping_cart(self, request, *args, **kwargs):
-        user = self.request.user
-        cart_data = Cart.objects.filter(users=user)
+        cart_data = (
+            self.request.user.users_cart.all()
+            .annotate(num_ingredients=Count(
+                'recipes__recipeingredient_recipe'
+            ))
+            .order_by('recipes')
+        )
         text = '-----------------------Корзина------------------------'
         for cart in cart_data:
-            recipe = Recipe.objects.get(id=cart.recipes.pk)
-            text += f'\nНазвание рецепта: {recipe.name}'
-            ingr_data = RecipeIngredient.objects.filter(recipes=recipe)
-            for ingr in ingr_data:
-                ingredient = ingr.ingredients.name
+            text += f'\nНазвание рецепта: {cart.recipes.name}'
+            for nuber in range(cart.num_ingredients):
+                ingr = cart.recipes.recipeingredient_recipe.all().order_by(
+                    'ingredients'
+                )[nuber]
                 measurement_unit = ingr.ingredients.measurement_unit
                 amount = ingr.amount
-                text += f'\n - {ingredient}, {measurement_unit} - {amount}'
+                text += f'\n - {ingr}, {measurement_unit} - {amount}'
             text += '\n------------------------------------------------------'
         file = StringIO(text)
         response = HttpResponse(file, content_type='text/plain; charset=utf8')
@@ -202,30 +200,28 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, *args, **kwargs):
         instance = self.get_object()
-        user = self.request.user
-        cart = Cart.objects.filter(users=user, recipes=instance)
+        cart = Cart.objects.filter(users=self.request.user, recipes=instance)
         if cart.exists():
             return Response(
-                {'errors': 'string'}, status=status.HTTP_400_BAD_REQUEST
+                {'errors': 'Этот рецепт уже добавлен в корзину'},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        cart.create(users=user, recipes=instance)
+        cart.create(users=self.request.user, recipes=instance)
         serializer = UniversalRecipeSerializer(
             instance, context={'request': request}
         )
-        return Response(
-            data=serializer.data, status=status.HTTP_201_CREATED
-        )
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     @shopping_cart.mapping.delete
     def shopping_cart_delete(self, request, *args, **kwargs):
         instance = self.get_object()
-        user = self.request.user
-        cart = Cart.objects.filter(users=user, recipes=instance)
+        cart = Cart.objects.filter(users=self.request.user, recipes=instance)
         if cart.exists():
             cart.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            {'errors': 'string'}, status=status.HTTP_400_BAD_REQUEST
+            {'errors': 'Этот рецепт уже удален из корзины'},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     @action(
@@ -235,29 +231,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def favorite(self, request, *args, **kwargs):
         instance = self.get_object()
-        user = self.request.user
-
-        favorite = Favorite.objects.filter(users=user, recipes=instance)
+        favorite = Favorite.objects.filter(
+            users=self.request.user, recipes=instance
+        )
         if favorite.exists():
             return Response(
-                {'errors': 'string'}, status=status.HTTP_400_BAD_REQUEST
+                {'errors': 'Этот рецепт уже добавлен в избранное'},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        favorite.create(users=user, recipes=instance)
+        favorite.create(users=self.request.user, recipes=instance)
         serializer = UniversalRecipeSerializer(
             instance, context={'request': request}
         )
-        return Response(
-            data=serializer.data, status=status.HTTP_201_CREATED
-        )
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     @favorite.mapping.delete
     def favorite_delete(self, request, *args, **kwargs):
         instance = self.get_object()
-        user = self.request.user
-        favorite = Favorite.objects.filter(users=user, recipes=instance)
+        favorite = Favorite.objects.filter(
+            users=self.request.user, recipes=instance
+        )
         if favorite.exists():
             favorite.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            {'errors': 'string'}, status=status.HTTP_400_BAD_REQUEST
+            {'errors': 'Этот рецепт уже удален из избранного'},
+            status=status.HTTP_400_BAD_REQUEST,
         )

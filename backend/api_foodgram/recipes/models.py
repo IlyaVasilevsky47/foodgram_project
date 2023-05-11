@@ -70,7 +70,7 @@ class Recipe(models.Model):
         upload_to="recipes/images/",
     )
     text = models.TextField(verbose_name="Описание")
-    cooking_time = models.PositiveBigIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         validators=[
             MinValueValidator(1),
         ],
@@ -163,11 +163,13 @@ class RecipeTag(models.Model):
 class Actions(models.Model):
     users = models.ForeignKey(
         User,
+        related_name="users_%(class)s",
         on_delete=models.CASCADE,
         verbose_name="Пользователи",
     )
     recipes = models.ForeignKey(
         Recipe,
+        related_name="recipes_%(class)s",
         on_delete=models.CASCADE,
         verbose_name="Рецепты",
     )
