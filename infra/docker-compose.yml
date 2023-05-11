@@ -21,9 +21,12 @@ services:
   frontend: 
     build: 
       context: ../frontend 
-      dockerfile: Dockerfile 
+      dockerfile: Dockerfile
+    restart: always
     volumes: 
       - ../frontend/:/app/result_build/ 
+    links:
+      - web
 
   nginx: 
     image: nginx:1.19.3 
@@ -38,6 +41,7 @@ services:
 
     links:
       - web
+      - frontend
     
 
 volumes:
