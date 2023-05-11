@@ -8,7 +8,6 @@ from djoser.conf import settings
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
-
 from recipes.models import (Cart, Favorite, Ingredient, Recipe, Subscription,
                             Tag)
 from users.models import CustomUser

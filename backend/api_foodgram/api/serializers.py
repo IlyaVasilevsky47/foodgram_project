@@ -5,7 +5,6 @@ from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-
 from recipes.models import (Cart, Favorite, Ingredient, Recipe,
                             RecipeIngredient, RecipeTag, Subscription, Tag)
 from users.models import CustomUser

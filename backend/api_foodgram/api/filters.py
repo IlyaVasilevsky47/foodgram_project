@@ -1,6 +1,5 @@
 from django_filters import rest_framework
 from rest_framework import filters
-
 from recipes.models import Cart, Favorite, Recipe, Tag
 
 

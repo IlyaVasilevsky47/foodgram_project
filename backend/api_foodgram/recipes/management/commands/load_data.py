@@ -3,7 +3,6 @@ import logging
 from csv import DictReader
 
 from django.core.management import BaseCommand
-
 from recipes.models import (Cart, Favorite, Ingredient, Recipe,
                             RecipeIngredient, RecipeTag, Subscription, Tag)
 from users.models import CustomUser
