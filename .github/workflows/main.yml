@@ -48,14 +48,14 @@ jobs:
             username: ${{ secrets.DOCKER_USERNAME }}
             password: ${{ secrets.DOCKER_PASSWORD }}
 
-        - name: Push to Docker Hub
+        - name: Push frontend to Docker Hub
           uses: docker/build-push-action@v4
           with:
             context: ./frontend/
             push: true
             tags: ilya047/frontend:v1.01.2023
 
-        - name: Push to Docker Hub
+        - name: Push api to Docker Hub
           uses: docker/build-push-action@v4
           with:
             context: ./backend/api_foodgram/
@@ -79,7 +79,7 @@ jobs:
               sudo systemctl stop nginx 
               sudo docker-compose stop
               sudo docker-compose rm web
-              cd yamdb_final/
+              cd foodgram-project-template/
               sudo docker-compose up -d
               sudo docker-compose exec -T web python manage.py migrate
               sudo docker-compose exec -T web python manage.py collectstatic --no-input
