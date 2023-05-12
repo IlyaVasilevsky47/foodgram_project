@@ -60,7 +60,7 @@ jobs:
           with:
             context: ./backend/api_foodgram/
             push: true
-            tags: ilya047/foodgram-web:v1.00.2023
+            tags: ilya047/foodgram-web:v1.10.2023
 
 
   deploy:

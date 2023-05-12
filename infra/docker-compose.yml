@@ -15,7 +15,7 @@ services:
       - ../frontend/:/app/result_build/
 
   web:
-    image: ilya047/foodgram-web:v1.00.2023
+    image: ilya047/foodgram-web:v1.10.2023
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
