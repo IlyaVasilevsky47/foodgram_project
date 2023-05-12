@@ -77,9 +77,9 @@ jobs:
             passphrase: ${{ secrets.PASSPHRASE }}
             script: |
               sudo systemctl stop nginx 
+              cd foodgram-project-template/
               sudo docker-compose stop
               sudo docker-compose rm web
-              cd foodgram-project-template/
               sudo docker-compose up -d
               sudo docker-compose exec -T web python manage.py migrate
               sudo docker-compose exec -T web python manage.py collectstatic --no-input
