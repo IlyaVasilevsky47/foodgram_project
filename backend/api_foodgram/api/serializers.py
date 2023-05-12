@@ -164,6 +164,15 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
 
+    def get_fields(self, *args, **kwargs):
+        fields = super(CreateRecipeSerializer, self).get_fields(
+            *args, **kwargs
+        )
+        request = self.context.get('request', None)
+        if request and getattr(request, 'method', None) == "PATCH":
+            fields['image'].required = False
+        return fields
+
     def create(self, validated_data):
         request = self.context.get('request')
         ingredients_data = validated_data.pop('ingredients')
