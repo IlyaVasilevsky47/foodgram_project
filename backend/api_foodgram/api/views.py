@@ -147,7 +147,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        if self.request.userr == instance.author:
+        if self.request.user == instance.author:
             return self.update(request, *args, **kwargs)
         detail = 'У вас недостаточно прав для выполнения данного действия.'
         return Response(

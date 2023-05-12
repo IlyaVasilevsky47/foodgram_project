@@ -3,6 +3,7 @@ import base64
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from recipes.models import (Cart, Favorite, Ingredient, Recipe,
@@ -38,6 +39,16 @@ class CreateCustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('email', 'username', 'first_name', 'last_name', 'password')
+
+    def create(self, validated_data):
+        user = User.objects.create(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            password=make_password(validated_data['password'])
+        )
+        return user
 
     def to_representation(self, instance):
         request = self.context.get('request')
