@@ -45,7 +45,7 @@ docker-compose exec web python manage.py migrate
 ```bash
 docker-compose exec web python manage.py createsuperuser?
 ```
-7. Заполняем тестовыми данными базу данных.
+8. Заполняем тестовыми данными базу данных.
 ```bash
 docker-compose exec web python manage.py load_data
 ```
