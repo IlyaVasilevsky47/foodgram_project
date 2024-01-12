@@ -1,6 +1,6 @@
 # Foodgram-project
 
-[![CI](https://github.com/IlyaVasilevsky47/foodgram-project-react/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/IlyaVasilevsky47/foodgram-project-react/actions/workflows/main.yml)
+[![CI](https://github.com/IlyaVasilevsky47/foodgram_project/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/IlyaVasilevsky47/foodgram_project/actions/workflows/main.yml)
 
 Foodgram — это онлайн-платформа и API для хранения и обмена кулинарными рецептами.
 
