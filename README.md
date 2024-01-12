@@ -12,7 +12,7 @@ Foodgram — это онлайн-платформа и API для хранени
 ## Запуск проекта:
 1. Клонируем проект
 ```bash
-git clone git@github.com:IlyaVasilevsky47/foodgram-project-react.git
+git clone git@github.com:IlyaVasilevsky47/foodgram_project.git
 ```
 2. Переходим в папку и создаем файл.
 ```bash
