@@ -2,6 +2,10 @@
 
 [![CI](https://github.com/IlyaVasilevsky47/foodgram-project-react/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/IlyaVasilevsky47/foodgram-project-react/actions/workflows/main.yml)
 
+
+
+
+
 Foodgram-project-template — это онлайн-платформа и API для хранения и обмена кулинарными рецептами.
 
 ## Основные возможности:
