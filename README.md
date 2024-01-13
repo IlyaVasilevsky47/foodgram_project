@@ -43,7 +43,7 @@ docker-compose exec web python manage.py migrate
 ```
 7. Создаем суперпользователя.
 ```bash
-docker-compose exec web python manage.py createsuperuser?
+docker-compose exec web python manage.py createsuperuser
 ```
 8. Заполняем тестовыми данными базу данных.
 ```bash
